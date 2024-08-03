@@ -59,26 +59,13 @@ btnRecorridoProfundidad.addEventListener("click", () => {
         return;
     }
 
-    Swal.fire({
-        title: 'Ejecutando Recorrido De Profundidad',
-        text: 'Por favor espere...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+    graph.dfs(vertices[0], (vertex) => {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.textContent = vertex;
+        row.appendChild(cell);
+        tbodyProfundidad.appendChild(row);
     });
-
-    setTimeout(() => {
-        graph.dfs(vertices[0], (vertex) => {
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.textContent = vertex;
-            row.appendChild(cell);
-            tbodyProfundidad.appendChild(row);
-        });
-
-        Swal.close();
-    }, 1000);
 });
 
 btnRecorridoAnchura.addEventListener("click", () => {
@@ -90,69 +77,39 @@ btnRecorridoAnchura.addEventListener("click", () => {
         return;
     }
 
-    Swal.fire({
-        title: 'Ejecutando Recorrido De Anchura',
-        text: 'Por favor espere...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+    graph.bfs(vertices[0], (vertex) => {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.textContent = vertex;
+        row.appendChild(cell);
+        tbodyAnchura.appendChild(row);
     });
-
-    setTimeout(() => {
-        graph.bfs(vertices[0], (vertex) => {
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.textContent = vertex;
-            row.appendChild(cell);
-            tbodyAnchura.appendChild(row);
-        });
-
-        Swal.close();
-    }, 1000);
 });
 
 btnRedMasRapida.addEventListener("click", () => {
     tbodyDijkstra.innerHTML = '';
 
     const inicioDijkstra = document.getElementById("inicioDijkstra").value.trim();
-    const destinoDijkstra = document.getElementById("destinoDijkstra").value.trim();
 
-    if (inicioDijkstra !== "" && destinoDijkstra !== "") {
-        Swal.fire({
-            title: 'Buscando la ruta más rápida',
-            text: 'Por favor espere...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        setTimeout(() => {
-            const distance = graph.dijkstra(inicioDijkstra, destinoDijkstra);
-            if (distance !== Infinity) {
+    if (inicioDijkstra !== "") {
+        const distances = graph.dijkstra(inicioDijkstra);
+        if (distances) {
+            for (let [node, distance] of Object.entries(distances)) {
                 const row = document.createElement('tr');
+                const cellNode = document.createElement('td');
                 const cellDistance = document.createElement('td');
-                cellDistance.textContent = distance;
+                cellNode.textContent = node;
+                cellDistance.textContent = distance === Infinity ? 'Infinito' : distance;
+                row.appendChild(cellNode);
                 row.appendChild(cellDistance);
                 tbodyDijkstra.appendChild(row);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Ruta Más Rápida',
-                    text: `La distancia más rápida entre ${inicioDijkstra} y ${destinoDijkstra} es ${distance}`,
-                    confirmButtonColor: '#007bff'
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se encontró una ruta entre las redes especificadas',
-                    confirmButtonColor: '#007bff'
-                });
             }
-        }, 1000);
+
+            mostrarAlerta('success', 'Rutas Más Rápidas', `Se calcularon las distancias más rápidas desde ${inicioDijkstra}`);
+        } else {
+            mostrarAlerta('error', 'Error', 'No se encontró una ruta desde la red especificada');
+        }
     } else {
-        mostrarAlerta('error', 'Error', 'Debe ingresar ambas redes para encontrar la ruta más rápida');
+        mostrarAlerta('error', 'Error', 'Debe ingresar la red de inicio para encontrar las rutas más rápidas');
     }
 });
